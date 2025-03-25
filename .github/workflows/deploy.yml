@@ -17,7 +17,8 @@ on:
 # Environment variables can be set here if needed
 env:
   DOCKER_REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: ${{ github.repository }} | toLower
+
 
 jobs:
   build-and-deploy:
@@ -50,5 +51,5 @@ jobs:
         context: .
         push: true
         tags: |
-          ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          ${{ env.DOCKER_REGISTRY }}/tharangasg/solar-generation-prediction:latest
+          ${{ env.DOCKER_REGISTRY }}/tharangasg/solar-generation-prediction:${{ github.sha }}
