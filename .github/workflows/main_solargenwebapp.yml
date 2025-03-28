@@ -49,11 +49,3 @@ jobs:
         slot-name: 'production'
         publish-profile: ${{ secrets.AzureAppService_PublishProfile_2bbeddc2c00e418ea2b051f8aecfbb09 }}
         images: 'solargenwebacr.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_b563b0ec4cc44f9096a932f01dfd9332 }}/solargenweb:${{ github.sha }}'
-
-    # Optional: Enable logging configuration
-    - name: Configure Web App Logs
-      run: |
-        az webapp log config --name solargenwebapp --resource-group <your-resource-group> \
-        --web-server-logging filesystem \
-        --docker-container-logging filesystem \
-        --level verbose
