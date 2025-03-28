@@ -108,7 +108,7 @@ class HopsworksFeatureStore:
     def __init__(self):
         """Initialize Hopsworks Feature Store connection."""
         self.project, self.feature_store = self.get_feature_store()
-        # self.raw_df = pd.read_csv("../../data/processed/01_combined_data.csv").head(10000)
+        self.raw_df = pd.read_csv("data/processed/01_combined_data.csv").head(10050)
         
     def get_feature_store(self):
         """Authenticate and connect to Hopsworks Feature Store."""
@@ -148,22 +148,22 @@ class HopsworksFeatureStore:
         
         logger.info("✅ Uploaded 'raw_data' Feature Group to Hopsworks!")
 
-    # def get_feature_group(self, name, version=1):
-    #     """
-    #     Get a feature group from the feature store.
+    def get_feature_group(self, name, version=1):
+        """
+        Get a feature group from the feature store.
         
-    #     Args:
-    #         name (str): Name of the feature group
-    #         version (int): Version of the feature group
+        Args:
+            name (str): Name of the feature group
+            version (int): Version of the feature group
             
-    #     Returns:
-    #         Feature group object
-    #     """
-    #     try:
-    #         return self.feature_store.get_feature_group(name=name, version=version)
-    #     except Exception as e:
-    #         logger.error(f"Error retrieving feature group '{name}': {str(e)}")
-    #         raise
+        Returns:
+            Feature group object
+        """
+        try:
+            return self.feature_store.get_feature_group(name=name, version=version)
+        except Exception as e:
+            logger.error(f"Error retrieving feature group '{name}': {str(e)}")
+            raise
 
     def read_feature_data(self, name, version=1):
         """
