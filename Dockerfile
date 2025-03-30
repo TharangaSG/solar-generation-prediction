@@ -63,6 +63,8 @@ COPY main.py /app/
 COPY models/ /app/models
 COPY start.sh /app/
 
+ENV HOPSWORKS_API_KEY=""
+
 # Expose port for FastAPI
 EXPOSE 5000
 
