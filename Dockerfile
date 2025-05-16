@@ -76,25 +76,22 @@
 
 FROM python:3.10-slim
 
+# Copy uv from the official image
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
 # Set working directory inside the container
 WORKDIR /app
 
 # Copy pyproject.toml file
 COPY ./pyproject.toml /app/pyproject.toml
 
-# Install system dependencies and uv
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
     python3-dev \
-    libssl-dev \
-    curl && \
-    curl --proto '=https' --tlsv1.2 -sSf https://astral.sh/uv/install.sh | sh && \
-    export PATH="/root/.local/bin:$PATH" && \
+    libssl-dev && \
     uv pip install --no-cache-dir pip setuptools wheel && \
     uv pip sync
-
-# Make PATH change permanent
-ENV PATH="/root/.local/bin:$PATH"
 
 # Copy the project files
 COPY src/ /app/src/
