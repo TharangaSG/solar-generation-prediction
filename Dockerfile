@@ -87,10 +87,14 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     python3-dev \
     libssl-dev \
-    curl ca-certificates && \
-    curl --proto '=https' --tlsv1.2 -sSf https://astral.sh/uv/install.sh | env UV_UNMANAGED_INSTALL="/usr/local" sh && \
-    uv pip install --no-cache-dir pip setuptools wheel && \
-    uv pip sync
+    curl && \
+    curl --proto '=https' --tlsv1.2 -sSf https://astral.sh/uv/install.sh | sh && \
+    export PATH="/root/.local/bin:$PATH" && \
+    pip install uv \
+    uv sync
+
+# Make PATH change permanent
+ENV PATH="/root/.local/bin:$PATH"
 
 # Copy the project files
 COPY src/ /app/src/
@@ -109,6 +113,7 @@ RUN chmod +x /app/start.sh
 
 # Start FastAPI and ML pipeline in parallel
 CMD ["/app/start.sh"]
+
 
 
 
