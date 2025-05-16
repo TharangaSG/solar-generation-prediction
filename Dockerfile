@@ -76,20 +76,19 @@
 
 FROM python:3.10-slim
 
-# Copy uv from the official image
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
-
 # Set working directory inside the container
 WORKDIR /app
 
 # Copy pyproject.toml file
 COPY ./pyproject.toml /app/pyproject.toml
 
-# Install system dependencies
+# Install system dependencies and uv
 RUN apt-get update && apt-get install -y \
     build-essential \
     python3-dev \
-    libssl-dev && \
+    libssl-dev \
+    curl ca-certificates && \
+    curl --proto '=https' --tlsv1.2 -sSf https://astral.sh/uv/install.sh | env UV_UNMANAGED_INSTALL="/usr/local" sh && \
     uv pip install --no-cache-dir pip setuptools wheel && \
     uv pip sync
 
@@ -110,5 +109,6 @@ RUN chmod +x /app/start.sh
 
 # Start FastAPI and ML pipeline in parallel
 CMD ["/app/start.sh"]
+
 
 
