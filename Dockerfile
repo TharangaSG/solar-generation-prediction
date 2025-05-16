@@ -40,21 +40,57 @@
 # # Start FastAPI and ML pipeline in parallel
 # CMD ["/app/start.sh"]
 
-# Use Python 3.10 as the base image
+# # Use Python 3.10 as the base image
+# FROM python:3.10-slim
+
+# # Set working directory inside the container
+# WORKDIR /app
+
+# # Copy requirements file
+# COPY ./requirements.txt /app/requirements.txt 
+
+# # Install system dependencies and Python packages
+# RUN apt-get update && apt-get install -y \
+#     build-essential \
+#     python3-dev \
+#     libssl-dev && \
+#     pip install --no-cache-dir -r /app/requirements.txt 
+
+# # Copy the project files
+# COPY src/ /app/src/
+# COPY app.py /app/
+# COPY main.py /app/
+# COPY models/ /app/models
+# COPY start.sh /app/
+
+# ENV HOPSWORKS_API_KEY=""
+
+# # Expose port for FastAPI
+# EXPOSE 5000
+
+# # Make the start.sh script executable
+# RUN chmod +x /app/start.sh
+
+# # Start FastAPI and ML pipeline in parallel
+# CMD ["/app/start.sh"]
+
 FROM python:3.10-slim
 
 # Set working directory inside the container
 WORKDIR /app
 
-# Copy requirements file
-COPY ./requirements.txt /app/requirements.txt 
+# Copy pyproject.toml file
+COPY ./pyproject.toml /app/pyproject.toml
 
 # Install system dependencies and Python packages
 RUN apt-get update && apt-get install -y \
     build-essential \
     python3-dev \
     libssl-dev && \
-    pip install --no-cache-dir -r /app/requirements.txt 
+    pip install --no-cache-dir pip setuptools wheel && \
+    pip install --no-cache-dir poetry && \
+    poetry config virtualenvs.create false && \
+    poetry install --no-interaction --no-ansi
 
 # Copy the project files
 COPY src/ /app/src/
