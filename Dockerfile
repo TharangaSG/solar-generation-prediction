@@ -74,6 +74,7 @@
 # # Start FastAPI and ML pipeline in parallel
 # CMD ["/app/start.sh"]
 
+
 FROM python:3.10-slim AS builder
 
 # Install build dependencies and uv
@@ -96,9 +97,33 @@ WORKDIR /app
 # Copy only dependency files for better caching
 COPY pyproject.toml /app/
 
-# Install dependencies
+# Force installation of specific numpy version before other dependencies
+# This ensures TensorFlow gets a compatible NumPy version
 RUN --mount=type=cache,target=/root/.cache/uv \
+    uv pip install --system "numpy>=1.23.0,<2.0.0" && \
     uv pip install --system -e .
+
+# Copy the project files
+COPY src/ /app/src/
+COPY app.py /app/
+COPY main.py /app/
+COPY models/ /app/models/
+COPY start.sh /app/
+
+# Ensure the start.sh script has Unix line endings and is executable
+RUN apt-get update && apt-get install -y dos2unix && \
+    dos2unix /app/start.sh && \
+    chmod +x /app/start.sh && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+ENV HOPSWORKS_API_KEY=""
+
+# Expose port for FastAPI
+EXPOSE 5000
+
+# Start FastAPI and ML pipeline in parallel
+CMD ["/app/start.sh"]
 
 
 
