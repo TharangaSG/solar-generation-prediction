@@ -82,15 +82,15 @@ WORKDIR /app
 # Copy pyproject.toml file
 COPY ./pyproject.toml /app/pyproject.toml
 
-# Install system dependencies and Python packages
+# Install system dependencies and uv
 RUN apt-get update && apt-get install -y \
     build-essential \
     python3-dev \
-    libssl-dev && \
-    pip install --no-cache-dir pip setuptools wheel && \
-    pip install --no-cache-dir poetry && \
-    poetry config virtualenvs.create false && \
-    poetry install --no-interaction --no-ansi
+    libssl-dev \
+    curl && \
+    curl --proto '=https' --tlsv1.2 -sSf https://astral.sh/uv/install.sh | sh && \
+    uv pip install --no-cache-dir pip setuptools wheel && \
+    uv pip sync
 
 # Copy the project files
 COPY src/ /app/src/
@@ -109,3 +109,4 @@ RUN chmod +x /app/start.sh
 
 # Start FastAPI and ML pipeline in parallel
 CMD ["/app/start.sh"]
+
