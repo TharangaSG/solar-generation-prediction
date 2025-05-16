@@ -74,45 +74,34 @@
 # # Start FastAPI and ML pipeline in parallel
 # CMD ["/app/start.sh"]
 
-FROM python:3.10-slim
+FROM python:3.10-slim AS builder
 
-# Set working directory inside the container
+# Install build dependencies and uv
+RUN apt-get update && apt-get install -y \
+    curl \
+    ca-certificates \
+    gcc \
+    g++ \
+    make \
+    python3-dev && \
+    curl -LsSf https://astral.sh/uv/install.sh | sh && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+ENV PATH="/root/.local/bin:$PATH"
+ENV UV_SYSTEM_PYTHON=1
+
 WORKDIR /app
 
-# Copy pyproject.toml file
-COPY ./pyproject.toml /app/pyproject.toml
+# Copy only dependency files for better caching
+COPY pyproject.toml /app/
 
-# Install system dependencies and uv
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    python3-dev \
-    libssl-dev \
-    curl && \
-    curl --proto '=https' --tlsv1.2 -sSf https://astral.sh/uv/install.sh | sh && \
-    export PATH="/root/.local/bin:$PATH" && \
-    pip install uv \
-    uv sync
+# Install dependencies
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv pip install --system -e .
 
-# Make PATH change permanent
-ENV PATH="/root/.local/bin:$PATH"
 
-# Copy the project files
-COPY src/ /app/src/
-COPY app.py /app/
-COPY main.py /app/
-COPY models/ /app/models
-COPY start.sh /app/
 
-ENV HOPSWORKS_API_KEY=""
-
-# Expose port for FastAPI
-EXPOSE 5000
-
-# Make the start.sh script executable
-RUN chmod +x /app/start.sh
-
-# Start FastAPI and ML pipeline in parallel
-CMD ["/app/start.sh"]
 
 
 
